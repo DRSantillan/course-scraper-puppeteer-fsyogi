@@ -1,27 +1,33 @@
 import fs from 'fs';
 //
 export const createFile = (path, file, content) => {
-	fs.writeFile(`${path}/${file}`, content, { flag: 'w+' }, err => {
-		if (err) {
-			console.error(err);
-			return;
-		} else {
-			console.log(`Created file: ./${path}/${file}`);
-		}
-	});
+	createFolder(path);
+	if (path && file) {
+		fs.writeFile(`${path}/${file}`, content, { flag: 'w+' }, err => {
+			if (err) {
+				console.log(
+					`Unable to create file ${path}/${file} Error: ${err}`
+				);
+				return;
+			} else {
+				console.log(`Created file: ./${path}/${file}`);
+			}
+		});
+	}
 };
 //
 export const createFolder = (folderPath, folder) => {
 	if (!folderPath) return console.log('Please specify a folder path.');
 
 	if (!fs.existsSync(folderPath)) {
-		fs.mkdir(`./${folderName}`);
-		console.log(`Created folder: ./${folderName}`);
+		fs.mkdirSync(`./${folderPath}`);
+		console.log(`Created folder: ./${folderPath}`);
 	}
-
-	if (!fs.existsSync(`./${folderPath}/${folder}`)) {
-		fs.mkdir(`./${folderPath}/${folder}`);
-		console.log(`Created folder: ./${folderPath}/${folder}`);
+	if (folderPath && folder) {
+		if (!fs.existsSync(`./${folderPath}/${folder}`)) {
+			fs.mkdirSync(`./${folderPath}/${folder}`);
+			console.log(`Created folder: ./${folderPath}/${folder}`);
+		}
 	}
 };
 //

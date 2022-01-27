@@ -1,6 +1,9 @@
 import puppeteer from 'puppeteer';
-import { createFile } from './util/utilities';
+import { createFile, createFolder } from './util/utilities.js';
+import dotenv from 'dotenv';
 
+dotenv.config();
+//
 const createSnapShot = async (page, folderPath, folder) => {
 	if (folder && folderPath) {
 		await page.screenShot({
@@ -8,10 +11,12 @@ const createSnapShot = async (page, folderPath, folder) => {
 			fullPage: true,
 		});
 	}
-	await page.screenshot({ path: 'all-courses.png', fullPage: true });
+	await page.screenshot({
+		path: `./${folderPath}/all-courses.png`,
+		fullPage: true,
+	});
 };
-
-const getAllCourses = async (url, page) => {};
+//
 const loginToSite = async page => {
 	await page.goto('https://sso.teachable.com/secure/441520/identity/login');
 	await page.type('input[id=email]', process.env.USERNAME);
@@ -19,6 +24,35 @@ const loginToSite = async page => {
 	await page.click('input[type=submit]');
 	await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
 };
+
+//
+const getCourseData = async page => {
+	const courseLink = await page.$eval('a', courseLink => courseLink.href);
+	const courseTitle = await page.$eval(
+		'.course-listing-title',
+		courseTitle => courseTitle.textContent
+	);
+
+	return {
+		link: courseLink,
+		title: courseTitle,
+	};
+};
+const getAllCourses = async page => {
+	const CSS_SELECTOR = '.row';
+	const courses = await page.$$(CSS_SELECTOR);
+	const allCourses = [];
+
+	for (const course of courses) {
+        
+		const courseData = await getCourseData(page);
+		allCourses.push(courseData);
+	}
+
+	//console.log(allCourses);
+	return allCourses;
+};
+
 const scraperMain = async () => {
 	// setup an execution context for puppeteer
 	const browser = await puppeteer.launch({ headless: true });
@@ -27,14 +61,16 @@ const scraperMain = async () => {
 
 	// Login to site
 	await loginToSite(page);
-	//await page.screenshot({ path: 'screenshot.png' });
 
 	// take a snapshot of the course page
-	await createSnapShot(page);
+	await createSnapShot(page, 'courses');
 
 	// get the page content and save to the main directory
-	const courseDirectoryHtml = await page.content();
-	await createFile('./courses', 'index.html', await page.content());
+	await createFile('courses', 'index.html', await page.content());
+
+	// Get all the courses on the main course page
+	const coursesList = await getAllCourses(page);
+	console.log(coursesList);
 
 	// shut down the connection
 	await browser.close();
