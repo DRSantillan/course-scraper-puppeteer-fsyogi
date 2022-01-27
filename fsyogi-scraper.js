@@ -11,7 +11,7 @@ dotenv.config();
 const createSnapShot = async (page, folderPath, folder) => {
 	createFolder(folderPath);
 	if (folder && folderPath) {
-		await page.screenShot({
+		await page.screenshot({
 			path: `./${folderPath}/${folder}.png`,
 			fullPage: true,
 		});
@@ -30,35 +30,81 @@ const loginToSite = async page => {
 	await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
 };
 
-//
-const getCourseData = async page => {
-	const courseLink = await page.$eval('a', courseLink => courseLink.href);
+// Scrapes all the links and titles from the main course page
+const getCoursesLinksAndTitles = async (course, page) => {
+	// declare variables
+	let courseLink,
+		courseTitle = null;
+
+	// get link to the course page
+	courseLink = await page.evaluate(el => el.querySelector('a').href, course);
 
 	if (courseLink.includes('?')) return;
-	const courseTitle = await page.$eval(
-		'.course-listing-title',
-		courseTitle => courseTitle.textContent
+	// get title of course
+	courseTitle = await page.evaluate(
+		el => el.querySelector('.course-listing-title').textContent,
+		course
 	);
-
+	// return one course title and listing
 	return {
-		link: courseLink,
 		title: replaceCharacters(courseTitle),
+		link: courseLink,
 	};
 };
+
+// function to get all courses on the main course page.
 const getAllCourses = async page => {
+	// variables
 	const CSS_SELECTOR = '.row';
-	const courses = await page.$$(CSS_SELECTOR);
 	const allCourses = [];
-	console.log(courses.length);
+	let courseData = null;
+	// get all divs on the page
+	const courses = await page.$$(CSS_SELECTOR);
+
+	// loop through divs to get each course and add to array
 	for (const course of courses) {
-		const courseData = await getCourseData(page);
+		courseData = await getCoursesLinksAndTitles(course, page);
 		allCourses.push(courseData);
 	}
-
-	//console.log(allCourses);
+	allCourses.shift();
+	allCourses.pop();
+	//
 	return allCourses;
 };
 
+// loop through return courses and create folder and an image snapshot for each course
+const createCoursesFoldersAndSnapShot = async (coursesArray, page) => {
+	const mainFolder = 'courses';
+
+	for (let course of coursesArray) {
+		console.log(course);
+		createFolder(mainFolder, course.title);
+	}
+};
+
+//
+const getCourseRows = async (courseLinks, page) => {
+	const CSS_SELECTOR = '.row';
+
+	for (let link of courseLinks) {
+		console.log(
+			`Going to scrape page: ${link.title} at link: ${link.link}`
+		);
+		await page.goto(`${link.link}`, { waitUntil: 'networkidle2' });
+		await page.screenshot({ path: `${link.title}-screenshot.png` });
+
+		const rows = await page.$$(CSS_SELECTOR);
+		let sectionTitle = '';
+		for (let row of rows) {
+			sectionTitle = await page.evaluate(
+				el => el.querySelector('.section-title').innerText.trim(),
+				row
+			);
+		}
+	}
+};
+
+// Main function
 const scraperMain = async () => {
 	// setup an execution context for puppeteer
 	const browser = await puppeteer.launch({ headless: true });
@@ -76,8 +122,10 @@ const scraperMain = async () => {
 
 	// Get all the courses on the main course page
 	const coursesList = await getAllCourses(page);
-	console.log(coursesList);
+	createCoursesFoldersAndSnapShot(coursesList, page);
 
+	// go to a course page and get all data for that page.
+	await getCourseRows(coursesList, page);
 	// shut down the connection
 	await browser.close();
 };
