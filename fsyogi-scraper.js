@@ -1,10 +1,15 @@
 import puppeteer from 'puppeteer';
-import { createFile, createFolder } from './util/utilities.js';
+import {
+	createFile,
+	createFolder,
+	replaceCharacters,
+} from './util/utilities.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
 //
 const createSnapShot = async (page, folderPath, folder) => {
+	createFolder(folderPath);
 	if (folder && folderPath) {
 		await page.screenShot({
 			path: `./${folderPath}/${folder}.png`,
@@ -28,6 +33,8 @@ const loginToSite = async page => {
 //
 const getCourseData = async page => {
 	const courseLink = await page.$eval('a', courseLink => courseLink.href);
+
+	if (courseLink.includes('?')) return;
 	const courseTitle = await page.$eval(
 		'.course-listing-title',
 		courseTitle => courseTitle.textContent
@@ -35,16 +42,15 @@ const getCourseData = async page => {
 
 	return {
 		link: courseLink,
-		title: courseTitle,
+		title: replaceCharacters(courseTitle),
 	};
 };
 const getAllCourses = async page => {
 	const CSS_SELECTOR = '.row';
 	const courses = await page.$$(CSS_SELECTOR);
 	const allCourses = [];
-
+	console.log(courses.length);
 	for (const course of courses) {
-        
 		const courseData = await getCourseData(page);
 		allCourses.push(courseData);
 	}
