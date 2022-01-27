@@ -67,6 +67,9 @@ const getAllCourses = async page => {
 		allCourses.push(courseData);
 	}
 	allCourses.shift();
+	allCourses.shift();
+	allCourses.shift();
+	allCourses.pop();
 	allCourses.pop();
 	//
 	return allCourses;
@@ -77,31 +80,97 @@ const createCoursesFoldersAndSnapShot = async (coursesArray, page) => {
 	const mainFolder = 'courses';
 
 	for (let course of coursesArray) {
-		console.log(course);
 		createFolder(mainFolder, course.title);
 	}
 };
 
 //
-const getCourseRows = async (courseLinks, page) => {
+const getCourseRows = async (courses, page) => {
 	const CSS_SELECTOR = '.row';
+	const courseLectures = [];
 
-	for (let link of courseLinks) {
-		console.log(
-			`Going to scrape page: ${link.title} at link: ${link.link}`
+	for (let course of courses) {
+		console.log(`Going to link: ${course.link}`);
+		console.log(`Scraping Page: ${course.title}`);
+		await page.waitForSelector(CSS_SELECTOR);
+		await page.goto(`${course.link}`, {
+			waitUntil: 'networkidle2',
+		});
+
+		//
+		createFile(
+			`courses/${course.title}`,
+			'index.html',
+			await page.content()
 		);
-		await page.goto(`${link.link}`, { waitUntil: 'networkidle2' });
-		await page.screenshot({ path: `${link.title}-screenshot.png` });
+		await page.screenshot({
+			path: `./courses/${course.title}/screenshot.png`,
+			fullPage: true,
+		});
 
 		const rows = await page.$$(CSS_SELECTOR);
+		let sections = [];
+		let rowIndex = 1;
 		let sectionTitle = '';
 		for (let row of rows) {
-			sectionTitle = await page.evaluate(
-				el => el.querySelector('.section-title').innerText.trim(),
-				row
+			let sectionLectures = [];
+			sectionTitle = await getPageSectionData(row, page);
+			console.log(sectionTitle);
+			createFolder(
+				`courses/${course.title}`,
+				`${rowIndex}-${replaceCharacters(sectionTitle)}`
 			);
+			const sectionRowList = await row.$$('.section-list .section-item');
+			let lectureIndex = 1;
+			for (const section of sectionRowList) {
+				sectionLectures.push(
+					getPageSectionLecturesData(section, lectureIndex)
+				);
+				// need to add createfolder for lectures
+				lectureIndex++;
+			}
+			sections.push({
+				title: `${rowIndex}-${replaceCharacters(sectionTitle)}`,
+				lectures: sectionLectures,
+			});
+			rowIndex++;
 		}
+		courseLectures.push({
+			courseTitle: course.title,
+			courseUrl: course.link,
+			sections,
+		});
 	}
+	return courseLectures;
+};
+
+const getPageSectionData = async (row, page) => {
+	let sectionTitle = '';
+
+	sectionTitle = await page.evaluate(
+		el => el.querySelector('.section-title').innerText.trim(),
+		row
+	);
+
+	return sectionTitle;
+};
+
+const getPageSectionLecturesData = async (row, index) => {
+	let lectureLink,
+		lectureTitle = '';
+	lectureLink = await row.evaluate(
+		el => el.querySelector('.section-item .item').href,
+		row
+	);
+	lectureTitle = await row.evaluate(
+		el => el.querySelector('.lecture-name').innerText,
+		row
+	);
+
+	return {
+		title: `${index}-${replaceCharacters(lectureTitle)}`,
+		pagelink: lectureLink,
+	};
 };
 
 // Main function
@@ -109,7 +178,7 @@ const scraperMain = async () => {
 	// setup an execution context for puppeteer
 	const browser = await puppeteer.launch({ headless: true });
 	const page = await browser.newPage();
-	await page.setDefaultNavigationTimeout(10000);
+	await page.setDefaultNavigationTimeout(30000);
 
 	// Login to site
 	await loginToSite(page);
@@ -122,10 +191,11 @@ const scraperMain = async () => {
 
 	// Get all the courses on the main course page
 	const coursesList = await getAllCourses(page);
-	createCoursesFoldersAndSnapShot(coursesList, page);
+	//createCoursesFoldersAndSnapShot(coursesList, page);
 
 	// go to a course page and get all data for that page.
-	await getCourseRows(coursesList, page);
+	const courseListwithLectures = await getCourseRows(coursesList, page);
+	console.log(courseListwithLectures);
 	// shut down the connection
 	await browser.close();
 };
