@@ -1,0 +1,19 @@
+{
+  "name": "course-scraper-puppeteer-fsyogi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:DRSantillan/course-scraper-puppeteer-fsyogi.git",
+  "author": "Dean <dean@deansantillan.com>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon fsyogi-scraper"
+  },
+  "dependencies": {
+    "puppeteer": "^13.1.2"
+  },
+  
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
