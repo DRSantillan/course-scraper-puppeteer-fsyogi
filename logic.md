@@ -29,43 +29,23 @@ const gotoCourseCurriculumPage = async url => {}
 
 ```javascript object
     {
-        courseTitle: 'JavaScript: The Advanced Concepts',
-        courseUrl: 'https://academy.zerotomastery.io/courses/enrolled/698487',
+        Title: 'Title',
+        Url: 'Url',
         curriculum: 
         [
             {
-				sectionTitle: 'Introduction',
-				sectionLectures: 
+				sectionTitle: 'Title',
+				Lectures: 
                 [
                     {
-                        Title: 'Javascript Engine',
-                        Url: 'https://academy.zerotomastery.io/courses/698487/lectures/12538207',
-                        videoUrl: 'https://cdn.fs.teachablecdn.com/XVyCMWvzQAyVFsg4fvbt',
-                        attachments: [{
-                            title: 'ECMAScript Engines',
-                            link: 'https://en.wikipedia.org/wiki/List_of_ECMAScript_engines'
-                        },{
-                            title: 'ECMAScript Engines',
-                            link: 'https://en.wikipedia.org/wiki/List_of_ECMAScript_engines'
-                        }
-                        ]
-	                }
-                ],
-			},{
-				sectionTitle: 'JavaScript Foundation',
-				sectionLectures: 
-                [
-                    {
-                        Title: 'Javascript Engine',
-                        Url: 'https://academy.zerotomastery.io/courses/698487/lectures/12538207',
-                        videoUrl: 'https://cdn.fs.teachablecdn.com/XVyCMWvzQAyVFsg4fvbt',
-                        attachments: [{
-                            title: 'ECMAScript Engines',
-                            link: 'https://en.wikipedia.org/wiki/List_of_ECMAScript_engines'
-                        },{
-                            title: 'ECMAScript Engines',
-                            link: 'https://en.wikipedia.org/wiki/List_of_ECMAScript_engines'
-                        }
+                        Title: 'Title',
+                        link: 'Url',
+                        videoUrl: 'videoUrl',
+                        attachments: [
+                            {
+                            title: 'Title',
+                            link: 'link'
+                            }
                         ]
 	                }
                 ],
