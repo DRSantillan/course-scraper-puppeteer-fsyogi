@@ -55,3 +55,17 @@ export const replaceCharacters = textToManipulate => {
 		.replaceAll(/ *\([^)]*\) */g, '')
 		.trim();
 };
+
+export const saveObject = array => {
+	const jsonObject = JSON.stringify(array);
+	createFile('data', 'courses.json', jsonObject);
+};
+
+export const readFile = fileName => {
+	
+	if (fs.existsSync(`./data/${fileName}.json`)) {
+		return fs.readFileSync(`./data/${fileName}.json`, 'utf-8');
+	} 
+
+	
+};

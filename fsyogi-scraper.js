@@ -115,7 +115,7 @@ const getCourseRows = async (courses, page) => {
 		for (let row of rows) {
 			let sectionLectures = [];
 			sectionTitle = await getPageSectionData(row, page);
-			console.log(sectionTitle);
+			
 			createFolder(
 				`courses/${course.title}`,
 				`${rowIndex}-${replaceCharacters(sectionTitle)}`
@@ -178,7 +178,7 @@ const scraperMain = async () => {
 	// setup an execution context for puppeteer
 	const browser = await puppeteer.launch({ headless: true });
 	const page = await browser.newPage();
-	await page.setDefaultNavigationTimeout(30000);
+	await page.setDefaultNavigationTimeout(15000);
 
 	// Login to site
 	await loginToSite(page);
