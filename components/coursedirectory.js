@@ -37,8 +37,7 @@ const extractSingleCourseTitleAndUrl = async (directoryCourseRow, page) => {
 };
 //
 export const getAllDirectoryCourses = async page => {
-	//let coursesArray = readFile('courses');
-	let allCoursesArray = JSON.parse(readFile('courses'));
+	let allCoursesArray = [];
 
 	if (allCoursesArray.length === 0) {
 		//
@@ -52,9 +51,13 @@ export const getAllDirectoryCourses = async page => {
 			);
 			allCoursesArray.push(extractedData);
 		}
-		saveObject(allCoursesArray);
 	}
 
+	allCoursesArray.shift();
+	allCoursesArray.shift();
+	allCoursesArray.pop();
+	allCoursesArray.pop();
+	saveObject(allCoursesArray);
 	return allCoursesArray;
 };
 //

@@ -31,3 +31,21 @@ const getAllAttachments = async (page, coursesArray) => {
 		let lectureAttachments = getAttachmentTitleAndUrl(row, page);
 	}
 };
+
+const gotoLecturePage = async (url, page, cssSelector) => {
+	console.log(
+		`#############################################################`
+	);
+	console.log(`Going to Lecture URL: ${url}`);
+	await page.waitForSelector(cssSelector);
+	await page.goto(url, {
+		waitUntil: 'networkidle2',
+	});
+};
+
+const getAllLecturesAndAttachments = async (array, page) => {
+	
+	for(let course of array) {
+		//
+	}
+}

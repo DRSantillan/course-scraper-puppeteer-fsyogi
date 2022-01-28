@@ -3,16 +3,8 @@ import fs from 'fs';
 export const createFile = (path, file, content) => {
 	createFolder(path);
 	if (path && file) {
-		fs.writeFile(`${path}/${file}`, content, { flag: 'w+' }, err => {
-			if (err) {
-				console.log(
-					`Unable to create file ${path}/${file} Error: ${err}`
-				);
-				return;
-			} else {
-				console.log(`Created file: ./${path}/${file}`);
-			}
-		});
+		fs.writeFileSync(`${path}/${file}`, content, { flag: 'w+' });
+		console.log(`Created file: ./${path}/${file}`);
 	}
 };
 //
@@ -58,14 +50,14 @@ export const replaceCharacters = textToManipulate => {
 
 export const saveObject = array => {
 	const jsonObject = JSON.stringify(array);
-	createFile('data', 'courses.json', jsonObject);
+	createFile('data', 'courses.js', jsonObject);
 };
 
 export const readFile = fileName => {
-	
-	if (fs.existsSync(`./data/${fileName}.json`)) {
-		return fs.readFileSync(`./data/${fileName}.json`, 'utf-8');
-	} 
-
-	
+	if (fs.existsSync(`./data/${fileName}.js`)) {
+		return fs.readFileSync(`./data/${fileName}.js`, 'utf-8');
+	} else {
+		createFile('data', 'courses.js');
+		return fs.readFileSync(`./data/${fileName}.js`, 'utf-8');
+	}
 };

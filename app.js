@@ -6,6 +6,7 @@ import {
 	loginToSite,
 } from './components/puppeteer.fsyogi.js';
 import { getAllDirectoryCourses } from './components/coursedirectory.js';
+import { getAllCourseSectionData } from './components/coursecurriculum.js';
 import { createFile } from './util/utilities.js';
 
 dotenv.config();
@@ -21,7 +22,17 @@ const app = async () => {
 	await createFile('courses', 'index.html', await init.page.content());
 	// get a list of all courses from directory page
 	const directoryCourseList = await getAllDirectoryCourses(init.page);
-	
+	// get all lectures by section
+	const coursesAndLecturesList = await getAllCourseSectionData(
+		directoryCourseList,
+		init.page
+	);
+
+	//
+	// const getLecturesList = await getAllLecturesAndAttachments(
+	// 	coursesAndLecturesList,
+	// 	page
+	// );
 
 	// shut down the connection
 	await init.browser.close();
