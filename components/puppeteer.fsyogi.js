@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { createFolder } from '../util/utilities.js';
+import { createFolder, createFile } from '../util/utilities.js';
 
 export const loginToSite = async page => {
 	await page.goto('https://sso.teachable.com/secure/441520/identity/login');
@@ -7,6 +7,20 @@ export const loginToSite = async page => {
 	await page.type('input[id=password]', process.env.PASSWORD);
 	await page.click('input[type=submit]');
 	await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+};
+
+export const createPDFFile = async (page, folderPath, folder) => {
+	if (folder && folderPath) {
+		await page.pdf({
+			path: `./${folderPath}/${folder}.pdf`,
+			format: 'A4',
+		});
+	} else {
+		await page.pdf({
+			path: `./${folderPath}/all-courses.pdf`,
+			format: 'A4',
+		});
+	}
 };
 
 export const initializePuppeteer = async () => {
@@ -22,12 +36,26 @@ export const createScreenShot = async (page, folderPath, folder) => {
 	createFolder(folderPath);
 	if (folder && folderPath) {
 		await page.screenshot({
-			path: `./${folderPath}/${folder}.png`,
+			path: `./${folderPath}/${folder}-screenshot.png`,
+			fullPage: true,
+		});
+	} else {
+		await page.screenshot({
+			path: `./${folderPath}/all-courses.png`,
 			fullPage: true,
 		});
 	}
-	await page.screenshot({
-		path: `./${folderPath}/all-courses.png`,
-		fullPage: true,
-	});
+};
+
+export const savePDFHTMLPNG = async (page, folderPath, folder) => {
+	// logging console
+	console.log(`>> Saving Html file................`);
+	// create html file
+	createFile(folderPath, 'index.html', await page.content());
+	// logging console
+	console.log(`>> Taking a Screenshot................`);
+	await createScreenShot(page, folderPath, folder);
+	console.log(`>> Creating a PDF File................`);
+	//create pdf file
+	await createPDFFile(page, folderPath, folder);
 };

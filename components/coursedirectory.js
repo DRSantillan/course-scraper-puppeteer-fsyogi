@@ -1,9 +1,4 @@
-import {
-	createFile,
-	readFile,
-	replaceCharacters,
-	saveObject,
-} from '../util/utilities.js';
+import { replaceCharacters, saveObject } from '../util/utilities.js';
 
 const getCourseDirectoryRows = async page => {
 	// css selector to extract rows
@@ -35,29 +30,45 @@ const extractSingleCourseTitleAndUrl = async (directoryCourseRow, page) => {
 		url,
 	};
 };
-//
+// get all course from main directory page
 export const getAllDirectoryCourses = async page => {
 	let allCoursesArray = [];
 
+	// only process if course array is empty
+	// this is for reading from the db but havent implemented yet
 	if (allCoursesArray.length === 0) {
 		//
 		let extractedData = null;
+
+		// get all course rows to manipulate
 		const courseDirectoryRows = await getCourseDirectoryRows(page);
-		//
-		for (let courseRow of courseDirectoryRows) {
+		// loop through course rows
+		for (let i = 10; i < 11; i++) {
+			// extract course information
 			extractedData = await extractSingleCourseTitleAndUrl(
-				courseRow,
+				courseDirectoryRows[i],
 				page
 			);
+			// add extracted data to main database
 			allCoursesArray.push(extractedData);
 		}
+		// for (let courseRow of courseDirectoryRows) {
+		// 	extractedData = await extractSingleCourseTitleAndUrl(
+		// 		courseRow,
+		// 		page
+		// 	);
+		// 	allCoursesArray.push(extractedData);
+		// }
 	}
 
-	allCoursesArray.shift();
-	allCoursesArray.shift();
-	allCoursesArray.pop();
-	allCoursesArray.pop();
+	// allCoursesArray.shift();
+	// allCoursesArray.shift();
+	// allCoursesArray.pop();
+	// allCoursesArray.pop();
+
+	// save all database to disk
 	saveObject(allCoursesArray);
+	// return for retrieving sections and lectures.
 	return allCoursesArray;
 };
 //

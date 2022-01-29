@@ -37,7 +37,6 @@ export const replaceCharacters = textToManipulate => {
 		.replaceAll(/\'/gi, 's')
 		.replaceAll(/,/gi, '-')
 		.replaceAll(/\+/gi, '-')
-		.replaceAll(/--/gi, '-')
 		.replaceAll(/\//gi, '-')
 		.replaceAll('  ', ' ')
 		.replaceAll(/&/gi, 'And')
@@ -45,6 +44,7 @@ export const replaceCharacters = textToManipulate => {
 		.replaceAll(/--/gi, '-')
 		.replaceAll(/,-/gi, '-')
 		.replaceAll(/ *\([^)]*\) */g, '')
+		.replaceAll(/--/gi, '-')
 		.trim();
 };
 
